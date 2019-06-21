@@ -1,0 +1,23 @@
+{
+    "name": "toastnz/news",
+    "description": "Silverstipe news module from the silverstripe blog module",
+    "type": "silverstripe-module",
+    "keywords": [
+        "silverstripe",
+        "news",
+        "toastnz"
+    ],
+    "license": "BSD-3-Clause",
+    "authors": [{
+        "name": "Hadlee Lineham",
+        "homepage": "http://toast.co.nz/",
+        "role": "Developer"
+    }],
+    "require": {
+        "silverstripe/cms": "^4.3",
+        "silverstripe/framework": "^4.3",
+        "composer/installers": "*",
+        "silverstripe/taxonomy": "^2.0.1",
+        "silverstripe/lumberjack": "^2.0"
+    }
+}

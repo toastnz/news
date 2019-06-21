@@ -1,0 +1,15 @@
+---
+Name: toastnews
+---
+
+Toast\News\News:
+  extensions:
+    - SilverStripe\Lumberjack\Model\Lumberjack
+
+Toast\News\Article:
+  show_in_sitetree: false
+
+
+SilverStripe\Taxonomy\TaxonomyTerm:
+  extensions:
+    - Toast\News\TaxonomyTermExtension
