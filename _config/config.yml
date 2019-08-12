@@ -1,5 +1,7 @@
 ---
-Name: toastnews
+Name: config
+After:
+  - 'siteconfig/*'
 ---
 
 Toast\News\News:
@@ -13,3 +15,8 @@ Toast\News\Article:
 SilverStripe\Taxonomy\TaxonomyTerm:
   extensions:
     - Toast\News\TaxonomyTermExtension
+
+
+SilverStripe\Taxonomy\TaxonomyType:
+  extensions:
+    - Toast\News\TaxonomyTypeExtension

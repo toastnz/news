@@ -17,6 +17,7 @@ use SilverStripe\Control\Controller;
 use SilverStripe\Forms\ListboxField;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Taxonomy\TaxonomyTerm;
+use SilverStripe\Taxonomy\TaxonomyType;
 use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Lumberjack\Model\Lumberjack;
 use Toast\QuickBlocks\GridFieldArchiveAction;
@@ -43,6 +44,12 @@ class News extends \Page
     private static $has_many = [
         'Articles' => Article::class,
     ];
+
+    private static $many_many = [
+        'Filters' => TaxonomyType::class,
+    ];
+
+    
 
     /**
      * Return articles.
@@ -90,10 +97,11 @@ class News extends \Page
         $fields = parent::getCMSFields();
         $fields->removeByName(['Tags']);
         $main = $fields->fieldByName('Root')->fieldByName('ChildPages');
-        $main->setTitle('News Articles');
+        // $main->setTitle('Articles');
         $fields->dataFieldByName('ChildPages')->setTitle('');
-//        $field = ListboxField::create('Tags', 'Tags', TaxonomyTerm::get()->map('ID', 'Name')->toArray(), $this->Tags());
-//        $fields->addFieldToTab('Root.Tags', $field);
+
+       $filterField = TagField::create('Filters', 'Filter Types', TaxonomyType::get(), $this->Filters());
+       $fields->addFieldToTab('Root.Filters', $filterField);
 
         return $fields;
     }

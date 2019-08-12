@@ -2,18 +2,20 @@
 
 namespace Toast\News;
 
+use CustomTagField;
 use SilverStripe\Dev\Debug;
-use SilverStripe\Forms\CheckboxField;
-use SilverStripe\Forms\DateField;
-use SilverStripe\Forms\DatetimeField;
-use SilverStripe\Forms\ListboxField;
+use Toast\Pages\ProductPage;
 use SilverStripe\ORM\ArrayList;
+use SilverStripe\View\ArrayData;
+use SilverStripe\Forms\DateField;
 use SilverStripe\Security\Member;
 use SilverStripe\TagField\TagField;
+use SilverStripe\Forms\ListboxField;
+use SilverStripe\Forms\LiteralField;
+use SilverStripe\Forms\CheckboxField;
+use SilverStripe\Forms\DatetimeField;
 use SilverStripe\Taxonomy\TaxonomyTerm;
 use SilverStripe\Taxonomy\TaxonomyType;
-use SilverStripe\View\ArrayData;
-use Toast\Pages\ProductPage;
 
 class Article extends \Page
 {
@@ -46,7 +48,6 @@ class Article extends \Page
      */
     private static $many_many = [
         'Tags'       => TaxonomyTerm::class,
-        'Categories' => TaxonomyTerm::class,
         'Authors'    => Member::class
     ];
 
@@ -89,11 +90,26 @@ class Article extends \Page
     {
         $fields = parent::getCMSFields();
         $fields->removeByName(['Terms']);
-        $field = ListboxField::create('Categories', 'Categories', TaxonomyTerm::get()->filter('Type.Name', 'News Categories')->map('ID', 'Name')->toArray(), $this->Categories());
-        $fields->addFieldToTab('Root.Categories', $field);
 
-        $field = ListboxField::create('Tags', 'Tags', TaxonomyTerm::get()->filter('Type.Name', 'News Tags')->map('ID', 'Name')->toArray(), $this->Tags());
-        $fields->addFieldToTab('Root.Tags', $field);
+        foreach($this->Parent()->Filters() as $filter){
+            // $field = TagField::create('FilterTag_' . $filter->ID, $filter->Title, TaxonomyTerm::get()->filter('Type.ID', $filter->ID), $this->Tags()->filter('Type.ID', $filter->ID));
+            $field = CustomTagField::create(
+                'FilterTag_' . $filter->ID,
+                $filter->Title,
+                TaxonomyTerm::get()->filter(['TypeID' => $filter->ID]),
+                $this->owner->Tags()->filter(['TypeID' => $filter->ID])
+            )->setShouldLazyLoad(true);
+            $fields->addFieldToTab("Root.Filters",
+                LiteralField::create('test', '<a target="_blank" href="/admin/taxonomy/SilverStripe-Taxonomy-TaxonomyTerm/EditForm/field/SilverStripe-Taxonomy-TaxonomyTerm/item/new">Create it under the Type of ' . $filter->Title . ' </a>')
+            );    
+            $fields->addFieldToTab('Root.Filters', $field);
+        }
+
+        
+        
+
+        // $field = ListboxField::create('Tags', 'Tags', TaxonomyTerm::get()->filter('Type.Name', 'News Tags')->map('ID', 'Name')->toArray(), $this->Tags());
+        // $fields->addFieldToTab('Root.Tags', $field);
 
         $fields->addFieldsToTab('Root.Main', [
             CheckboxField::create('Featured', 'This is a Featured Post'),
@@ -110,9 +126,36 @@ class Article extends \Page
     function onBeforeWrite()
     {
         parent::onBeforeWrite();
+
+        foreach ($this->Parent->filters() as $filter){
+            $TypeID = $filter->ID;
+
+            if ($this->owner->isInDb() && isset($_POST['FilterTag_'. $filter->ID])) {
+                foreach ($_POST['FilterTag_'. $filter->ID] as $tag) {
+                    
+                    $term = TaxonomyTerm::get()->filter(['TypeID' => $TypeID, 'Title' => $tag]);
+                    if ($term->count() >= 1) {
+                        $this->owner->Tags()->add($term->first());
+                    } else {
+                        $taxonomyTerm = new TaxonomyTerm();
+                        $taxonomyTerm->Name = $tag;
+                        $taxonomyTerm->TypeID = $TypeID;
+                        $taxonomyTerm->write();
+                        $this->owner->Tags()->add($taxonomyTerm);
+                        //if no create and add to this product
+                    }
+                }
+            
+                
+            
+            }
+
+            unset($_POST['FilterTag_'. $filter->Title]);
+        }
     }
 
     public function getCustomSummary(){
+        
         if ($this->Summary){
             return $this->Summary;
         }else{

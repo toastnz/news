@@ -3,6 +3,7 @@
 namespace Toast\News;
 
 
+use Toast\Model\Guest;
 use Toast\News\Article;
 use SilverStripe\Dev\Debug;
 use SilverStripe\Forms\FieldList;
@@ -14,9 +15,11 @@ class TaxonomyTermExtension extends DataExtension
 {
     private static $db = [
         'Slug' => 'Text',
+        'Title' => 'Varchar'
     ];
     private static $belongs_many_many = [
         'Articles' => Article::class,
+        'Guests' => Guest::class,
     ];
 
     public function getCategoryLink($holderLink = null){
