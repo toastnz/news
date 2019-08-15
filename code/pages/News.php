@@ -98,7 +98,7 @@ class News extends \Page
         $fields->removeByName(['Tags']);
         $main = $fields->fieldByName('Root')->fieldByName('ChildPages');
         // $main->setTitle('Articles');
-        $fields->dataFieldByName('ChildPages')->setTitle('');
+        $fields->dataFieldByName('ChildPages')->setTitle('Articles');
 
        $filterField = TagField::create('Filters', 'Filter Types', TaxonomyType::get(), $this->Filters());
        $fields->addFieldToTab('Root.Filters', $filterField);
