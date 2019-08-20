@@ -96,9 +96,9 @@ class News extends \Page
     {
         $fields = parent::getCMSFields();
         $fields->removeByName(['Tags']);
-        $main = $fields->fieldByName('Root')->fieldByName('ChildPages');
+        // $main = $fields->fieldByName('Root')->fieldByName('ChildPages');
         // $main->setTitle('Articles');
-        $fields->dataFieldByName('ChildPages')->setTitle('Articles');
+        // $fields->dataFieldByName('ChildPages')->setTitle('');
 
        $filterField = TagField::create('Filters', 'Filter Types', TaxonomyType::get(), $this->Filters());
        $fields->addFieldToTab('Root.Filters', $filterField);
@@ -142,32 +142,6 @@ class News extends \Page
         return GroupedList::create($this->getTags());
     }
 
-    public function firstCategoriesCustomChildren(){
-        $columns = array_chunk($this->getCategories()->map('ID', 'ID')->toArray(), 4, true);
-        return TaxonomyTerm::get()->filter(['ID' => $columns[0]]);
-    }
-
-    public function secondCategoriesCustomChildren(){
-        $columns = array_chunk($this->getCategories()->map('ID', 'ID')->toArray(), 4, true);
-        return TaxonomyTerm::get()->filter(['ID' => $columns[1]]);
-
-    }
-
-    public function thirdCategoriesCustomChildren(){
-        $columns = array_chunk($this->getCategories()->map('ID', 'ID')->toArray(), 4, true);
-        if (array_key_exists(2, $columns)){
-            return TaxonomyTerm::get()->filter(['ID' => $columns[2]]);
-        }
-    }
-
-    public function forthCategoriesCustomChildren(){
-        $columns = array_chunk($this->getCategories()->map('ID', 'ID')->toArray(), 4, true);
-        if (array_key_exists(3, $columns)){
-            return TaxonomyTerm::get()->filter(['ID' => $columns[3]]);
-        }
-
-    }
-
     //Allow creation of tags after news is made
     //Allow creation of articles after news is made
 }
@@ -181,9 +155,26 @@ class NewsController extends \PageController
         'ajaxArticles'
     ];
 
+    public function getFiltersForPage()
+    {
+        $Types = new ArrayList();
+
+        foreach($this->Filters() as $filter){
+            
+            $Types->push([
+                'Title' => $filter->Title,
+                'Tags' => TaxonomyTerm::get()->filter(['TypeID' => $filter->ID])->toArray()
+            ]);
+        }
+
+        return $Types;
+    }
+
     public function getPaginatedArticles()
     {
-        return $this->owner->getArticles();
+        $Articles =  new PaginatedList($this->Articles(), Controller::curr()->getRequest());
+        $Articles->setPageLength(6);
+        return $Articles;
     }
 
 
