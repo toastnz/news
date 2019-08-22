@@ -25,6 +25,7 @@ use Toast\QuickBlocks\GridFieldContentBlockState;
 use SilverStripe\Forms\GridField\GridFieldAddNewButton;
 use SilverStripe\Forms\GridField\GridFieldConfig_RelationEditor;
 use SilverStripe\Forms\GridField\GridFieldAddExistingAutocompleter;
+use SilverStripe\ORM\PaginatedList;
 
 class News extends \Page
 {
