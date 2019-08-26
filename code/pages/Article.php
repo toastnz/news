@@ -91,19 +91,22 @@ class Article extends \Page
         $fields = parent::getCMSFields();
         $fields->removeByName(['Terms']);
 
-        foreach($this->Parent()->Filters() as $filter){
-            // $field = TagField::create('FilterTag_' . $filter->ID, $filter->Title, TaxonomyTerm::get()->filter('Type.ID', $filter->ID), $this->Tags()->filter('Type.ID', $filter->ID));
-            $field = CustomTagField::create(
-                'FilterTag_' . $filter->ID,
-                $filter->Title,
-                TaxonomyTerm::get()->filter(['TypeID' => $filter->ID]),
-                $this->owner->Tags()->filter(['TypeID' => $filter->ID])
-            )->setShouldLazyLoad(true);
-            $fields->addFieldToTab("Root.Filters",
-                LiteralField::create('test', '<a target="_blank" href="/admin/taxonomy/SilverStripe-Taxonomy-TaxonomyTerm/EditForm/field/SilverStripe-Taxonomy-TaxonomyTerm/item/new">Create it under the Type of ' . $filter->Title . ' </a>')
-            );    
-            $fields->addFieldToTab('Root.Filters', $field);
-        }
+        $field = TagField::create('Tags', 'Tags', TaxonomyTerm::get(), $this->Tags());
+        // foreach($this->Parent()->Filters() as $filter){
+            
+        //     // $field = CustomTagField::create(
+        //     //     'FilterTag_' . $filter->ID,
+        //     //     $filter->Title,
+        //     //     TaxonomyTerm::get()->filter(['TypeID' => $filter->ID]),
+        //     //     $this->owner->Tags()->filter(['TypeID' => $filter->ID])
+        //     // )->setShouldLazyLoad(true);
+        //     $fields->addFieldToTab("Root.Filters",
+        //         LiteralField::create('test', '<a target="_blank" href="/admin/taxonomy/SilverStripe-Taxonomy-TaxonomyTerm/EditForm/field/SilverStripe-Taxonomy-TaxonomyTerm/item/new">Create it under the Type of ' . $filter->Title . ' </a>')
+        //     );    
+        //     $fields->addFieldToTab('Root.Filters', $field);
+        // }
+
+        $fields->addFieldToTab('Root.Filters', $field);
 
         
         
