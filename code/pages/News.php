@@ -160,11 +160,15 @@ class NewsController extends \PageController
     {
         $Types = new ArrayList();
 
+        
+
         foreach($this->Filters() as $filter){
+            
+            
             
             $Types->push([
                 'Title' => $filter->Title,
-                'Tags' => TaxonomyTerm::get()->filter(['TypeID' => $filter->ID])->toArray()
+                'Tags' => TaxonomyTerm::get()->filter(['TypeID' => $filter->ID])
             ]);
         }
 
@@ -182,10 +186,14 @@ class NewsController extends \PageController
     public function ajaxArticles(HTTPRequest $request)
     {
 
-        $filters = $request->getVar('ID');
-        $articles = $this->getPaginatedArticles();
-        if ($filters){
-            $articles = $articles->filter(array('Categories.ID' => $filters));
+        $filterRequest = $request->getVar('filters');
+        $articles = $this->Articles();
+        if ($filterRequest){
+            $filters = new ArrayList();
+            $filterSlugs = explode( ',',$filterRequest);
+            $tagsID = TaxonomyTerm::get()->filter('Slug', $filterSlugs)->column('ID');
+            $articles->filter('Tags.ID', $tagsID);
+
         }
         $totalItems = $articles->count();
         /** -----------------------------------------
@@ -202,19 +210,13 @@ class NewsController extends \PageController
         } else {
             $showMore = $offset + 9 <= $totalItems;
         }
-        $jsonItems = [];
 
-        /** @var Page $item */
-        foreach ($articles as $item) {
+        $articles =  new PaginatedList($articles, Controller::curr()->getRequest());
+        $articles->setPageLength(6);
 
-            $jsonItems[] = [
-                'id'   => $item->ID,
-                'html' => $item->forTemplate()->forTemplate()
-            ];
-
-        }
+       return  $this->customise($articles)->renderWith(['Layout/ajaxBlogItems']);
         $jsonData = [
-            'items'       => $jsonItems,
+            'content'     => '',
             'total_items' => $totalItems,
             'count'       => $articles->count(),
             'show_more'   => $showMore
